@@ -15,10 +15,17 @@ import { Badge } from "@/components/ui/badge"
 import { TagFilter } from "@/components/notes/tag-filter"
 
 function formatDate(iso: string) {
-    return new Date(iso).toLocaleString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short",
-    })
+    const diffSec = Math.round((Date.now() - new Date(iso).getTime()) / 1000)
+    if (diffSec < 60) return "now"
+    const diffMin = Math.round(diffSec / 60)
+    if (diffMin < 60) return `${diffMin}m`
+    const diffHr = Math.round(diffMin / 60)
+    if (diffHr < 24) return `${diffHr}h`
+    const diffDay = Math.round(diffHr / 24)
+    if (diffDay < 30) return `${diffDay}d`
+    const diffMonth = Math.round(diffDay / 30)
+    if (diffMonth < 12) return `${diffMonth}mo`
+    return `${Math.round(diffDay / 365)}y`
 }
 
 function previewOf(content: string) {

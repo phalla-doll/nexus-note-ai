@@ -324,4 +324,3 @@ function ToolbarButton({
 function Divider() {
     return <Separator orientation="vertical" className="mx-0.5 h-5" />
 }
-
