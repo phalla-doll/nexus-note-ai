@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { EditorContent, useEditor, type Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -25,6 +25,16 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 type MarkdownStorage = { getMarkdown?: () => string }
 
@@ -105,6 +115,8 @@ export function MarkdownEditor({
 }
 
 function Toolbar({ editor }: { editor: Editor | null }) {
+    const [linkOpen, setLinkOpen] = useState(false)
+
     if (!editor) return null
 
     return (
@@ -180,9 +192,107 @@ function Toolbar({ editor }: { editor: Editor | null }) {
                 icon={Link01Icon}
                 label="Link"
                 active={editor.isActive("link")}
-                onClick={() => promptForLink(editor)}
+                onClick={() => setLinkOpen(true)}
+            />
+            <LinkDialog
+                editor={editor}
+                open={linkOpen}
+                onOpenChange={setLinkOpen}
             />
         </div>
+    )
+}
+
+function LinkDialog({
+    editor,
+    open,
+    onOpenChange,
+}: {
+    editor: Editor
+    open: boolean
+    onOpenChange: (open: boolean) => void
+}) {
+    const [url, setUrl] = useState("")
+
+    useEffect(() => {
+        if (!open) return
+        const previous = editor.getAttributes("link").href as string | undefined
+        setUrl(previous ?? "https://")
+    }, [open, editor])
+
+    const hasExistingLink = editor.isActive("link")
+
+    function applyLink(next: string) {
+        const trimmed = next.trim()
+        if (trimmed === "") {
+            editor.chain().focus().extendMarkRange("link").unsetLink().run()
+        } else {
+            editor
+                .chain()
+                .focus()
+                .extendMarkRange("link")
+                .setLink({ href: trimmed })
+                .run()
+        }
+        onOpenChange(false)
+    }
+
+    function removeLink() {
+        editor.chain().focus().extendMarkRange("link").unsetLink().run()
+        onOpenChange(false)
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>
+                        {hasExistingLink ? "Edit link" : "Insert link"}
+                    </DialogTitle>
+                    <DialogDescription>
+                        Enter a URL to link the selected text.
+                    </DialogDescription>
+                </DialogHeader>
+                <form
+                    className="flex flex-col gap-2"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        applyLink(url)
+                    }}
+                >
+                    <Label htmlFor="link-url">URL</Label>
+                    <Input
+                        id="link-url"
+                        type="url"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        placeholder="https://example.com"
+                        autoFocus
+                    />
+                    <DialogFooter className="mt-2">
+                        {hasExistingLink && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={removeLink}
+                            >
+                                Remove link
+                            </Button>
+                        )}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit">
+                            {hasExistingLink ? "Update" : "Insert"}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     )
 }
 
@@ -215,13 +325,3 @@ function Divider() {
     return <Separator orientation="vertical" className="mx-0.5 h-5" />
 }
 
-function promptForLink(editor: Editor) {
-    const previous = editor.getAttributes("link").href as string | undefined
-    const next = window.prompt("Link URL", previous ?? "https://")
-    if (next === null) return
-    if (next === "") {
-        editor.chain().focus().extendMarkRange("link").unsetLink().run()
-        return
-    }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: next }).run()
-}

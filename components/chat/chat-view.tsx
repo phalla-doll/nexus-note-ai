@@ -506,22 +506,34 @@ function parseAssistantStream(raw: string): {
     content: string
 } {
     let rest = raw
-    const citations: Citation[] = []
+    const byId = new Map<string, Citation>()
     while (rest.startsWith("<context>")) {
         const close = rest.indexOf("</context>")
         if (close < 0) {
             // Still streaming — wait for the closing tag.
-            return { citations, reasoning: "", content: "" }
+            return { citations: [...byId.values()], reasoning: "", content: "" }
         }
         const json = rest.slice("<context>".length, close)
         try {
             const parsed = JSON.parse(json) as Citation[]
-            citations.push(...parsed)
+            for (const c of parsed) {
+                const existing = byId.get(c.id)
+                if (!existing) {
+                    byId.set(c.id, { ...c, sources: [...c.sources] })
+                } else {
+                    for (const s of c.sources) {
+                        if (!existing.sources.includes(s)) {
+                            existing.sources.push(s)
+                        }
+                    }
+                }
+            }
         } catch {
             // Ignore malformed; skip past the tag.
         }
         rest = rest.slice(close + "</context>".length)
     }
+    const citations = [...byId.values()]
     if (!rest.startsWith("<think>")) {
         return { citations, reasoning: "", content: rest }
     }
