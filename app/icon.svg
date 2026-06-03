@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="oklch(0.527 0.154 150.069)"/>
+  <g stroke="oklch(0.982 0.018 155.826)" stroke-width="1.6" stroke-linecap="round">
+    <line x1="9" y1="9" x2="22" y2="22"/>
+    <line x1="22" y1="10" x2="10" y2="22"/>
+    <line x1="9" y1="9" x2="22" y2="10"/>
+    <line x1="10" y1="22" x2="22" y2="22"/>
+  </g>
+  <g fill="oklch(0.982 0.018 155.826)">
+    <circle cx="9" cy="9" r="2.6"/>
+    <circle cx="22" cy="10" r="2.6"/>
+    <circle cx="10" cy="22" r="2.6"/>
+    <circle cx="22" cy="22" r="2.6"/>
+  </g>
+</svg>

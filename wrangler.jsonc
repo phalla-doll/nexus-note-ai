@@ -1,0 +1,28 @@
+// Cloudflare config for NexusNote AI.
+//
+// Until we adopt @opennextjs/cloudflare or @cloudflare/next-on-pages, this
+// file is the source of truth for D1 / R2 bindings used by `wrangler d1 …`
+// migrations and any future Worker scripts. The Next.js dev server doesn't
+// consume it yet — the IDB client driver remains the runtime in dev.
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "nexus-note-ai",
+    "compatibility_date": "2026-06-03",
+    "account_id": "e63e1c513f59ba1e5c5a83d2931cf61b",
+
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "nexus-note-ai-prod",
+            "database_id": "f5ffd20e-3946-41f1-8702-ca3fc1381a6a",
+            "migrations_dir": "migrations"
+        }
+    ],
+
+    "r2_buckets": [
+        {
+            "binding": "FILES",
+            "bucket_name": "nexus-note-ai-files"
+        }
+    ]
+}
