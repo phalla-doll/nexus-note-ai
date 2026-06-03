@@ -37,6 +37,8 @@ When adding features described in the README (notes, chat, graph, canvas, search
 ## UI stack
 
 - **shadcn/ui** configured via `components.json`: style `radix-nova`, base color `olive`, icon library **hugeicons** (`@hugeicons/react` + `@hugeicons/core-free-icons`), RSC enabled. Use `pnpm dlx shadcn@latest add <component>` rather than copy-pasting.
+- **Prefer shadcn primitives** in `components/ui/` for any UI need before reaching for a custom component or another library. If a suitable primitive isn't installed yet, add it via the shadcn CLI rather than building from scratch.
+- **Do not modify the classes or internals of files under `components/ui/`** unless the user explicitly asks for it. These are generated primitives; customize via props, `className` overrides on the consumer, or theme tokens in `app/globals.css` instead.
 - **Tailwind v4** (PostCSS plugin, no `tailwind.config.*` — config lives in `app/globals.css` via `@theme`).
 - Prefer `cn()` from `@/lib/utils` for class merging. Prettier is configured with `tailwindFunctions: ["cn", "cva"]` so classes inside those get sorted.
 - Icons: hugeicons, not lucide (despite what the README says).
